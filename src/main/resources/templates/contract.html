@@ -184,13 +184,15 @@ and open the template in the editor.
         <form>
             <fieldset>
                 <legend>Страхователь</legend>
-                <table border="0px" width="800px" id="client">
+                <table border="0px" 
+                       width="800px" 
+                       id="client" 
+                       clientid=""
+                       th:clientid="${contract.policyholder.id}">
                     <tr>
                         <td align="middle" class="policyholder">
                             <input type="button" 
                                    id="choose" 
-                                   method="POST" 
-                                   action="/policyholder" 
                                    value="Выбрать">
                         </td>
                         <td>ФИО</td>
