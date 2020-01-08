@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<style>
+    .calculation {
+        width: 300px;
+    }
+    .policyholder {
+        width: 300px;
+    }
+    input {
+        width : 150px;
+    }
+    fieldset {
+        width: 930px;
+    }
+    select {
+        width: 150px;   
+    }
+    .fieldsetWithoutBorders {
+        border:0 none;
+    }
+    #fio {
+        width: 400px;
+    }
+    .comment{
+        width: 930px;
+        height: 60px;
+    }
+    .small-input {
+        width: 50px;
+    }
+    .required {
+        background-color: lightcoral;
+    }
+</style>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title th:if="${contract.contractNumber}">Договор №[[${contract.contractNumber}]]</title>
+        <title th:unless="${contract.contractNumber}">Новый договор</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <body>
+        <form>
+            <fieldset>
+                <legend>Рассчет</legend>
+                <table>
+                    <tr>
+                        <td colspan="2" align="right" class="calculation">
+                            <label>Страховая сумма 
+                                <input class="required" name="sum" id="sum" type="number" required 
+                                       value="" th:value="${contract.sum}">
+                            </label>
+                        </td>
+                        <td class="calculation">
+                            <label>Срок действия с 
+                                <input class="required" name="dateFrom" id="dateFrom" type="date" required 
+                                       value="" th:value="${contract.formatDateFrom()}">
+                            </label>
+                        </td>
+                        <td class="calculation">
+                            <label>Срок действия по 
+                                <input class="required" name="dateTo" id="dateTo" type="date" required 
+                                       value="" th:value="${contract.formatDateTo()}">
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" align="right" class="calculation">
+                            <label>Тип недвижимости 
+                                <select class="required" 
+                                        name="property" 
+                                        id="property" 
+                                        required 
+                                        value=""
+                                        th:value="${contract.address.type}">
+                                    <option value=""
+                                            th:value="APARTAMENT"
+                                            th:utext="Квартира">
+                                    </option>
+                                    <option value=""
+                                            th:value="HOUSE"
+                                            th:utext="Дом">
+                                    </option>
+                                    <option value=""
+                                            th:value="ROOM"
+                                            th:utext="Комната">
+                                    </option>
+                                </select>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" align="right" class="calculation">
+                            <label>Год постройки 
+                                <select class="required" 
+                                        name="year"
+                                        value=""
+                                        required 
+                                        id="year"
+                                        th:value="${contract.address.buildingYear}">
+                                    <option value="" 
+                                            th:each="year: ${years}"
+                                            th:utext="${year}" 
+                                            th:value="${year}"></option>
+                                </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" align="right" class="calculation">
+                            <label>Площадь, кв.м. 
+                                <input class="required" 
+                                       name="area" 
+                                       id="area" 
+                                       type="number" 
+                                       step="0.1" 
+                                       required 
+                                       value="" th:value="${contract.area}">
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="calculation">
+                        </td>
+                        <td colspan="2" align="middle" class="calculation">
+                            <input id="calculate" 
+                                   type="button"
+                                   value="Рассчитать">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" align="right" class="calculation">
+                            <label>Дата расчета 
+                                <input class="required" 
+                                       name="calculation_date" 
+                                       id="calculation_date" 
+                                       type="date" 
+                                       readonly 
+                                       value="" 
+                                       th:value="${contract.formatCalculationDate()}">
+                            </label>
+                        </td>
+                        <td colspan="2" align="middle" class="calculation">
+                            <label>Премия 
+                                <input class="required" 
+                                       name="prize" 
+                                       id="prize" 
+                                       type="number" 
+                                       step="0.01" 
+                                       value="" th:value="${contract.prize}">
+                            </label>
+                        </td>
+                    </tr>
+                </table>
+            </fieldset>
+        </form>
+        <table>
+            <tr>
+                <td>
+                    <label>№ договора 
+                        <input class="required" 
+                               name="contract_number" 
+                               id="contract_number" 
+                               type="number" 
+                               required value="" 
+                               th:value="${contract.contractNumber}">
+                    </label>
+                </td>
+                <td>
+                    <label>Дата заключения 
+                        <input class="required" 
+                               id="conclusion_date" 
+                               name="conclusion_date" type="date" 
+                               readonly required
+                               value="" 
+                               th:value="${contract.formatConclusionDate()}">
+                    </label>
+                </td>
+            </tr>
+        </table>
+        <form>
+            <fieldset>
+                <legend>Страхователь</legend>
+                <table border="0px" width="800px" id="client">
+                    <tr>
+                        <td align="middle" class="policyholder">
+                            <input type="button" 
+                                   id="choose" 
+                                   method="POST" 
+                                   action="/policyholder" 
+                                   value="Выбрать">
+                        </td>
+                        <td>ФИО</td>
+                        <td align="right" colspan="3">
+                            <input class="required" 
+                                   last_name="" 
+                                   first_name="" 
+                                   middle_name="" 
+                                   name="fio" id="fio" type="text" readonly value=""
+                                   th:last_name="${contract.policyholder.lastName}"
+                                   th:first_name="${contract.policyholder.firstName}"
+                                   th:middle_name="${contract.policyholder.middleName}"
+                                   th:value="${contract.policyholder.fio()}">
+                        </td>
+                        <td align="middle" class="policyholder">
+                            <input id="change" type="button" value="Изменить">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="policyholder">
+                            <label>Дата рождения 
+                                <input class="required" 
+                                       id="birthday" 
+                                       type="date"
+                                       readonly 
+                                       value=""
+                                       th:value="${contract.policyholder.formatBirthday()}">
+                            </label>
+                        </td>
+                        <td class="policyholder" align="middle">Паспорт</td>
+                        <td class="policyholder">
+                            <label>серия<br>
+                                <input class="required" 
+                                       id="series" 
+                                       type="text" 
+                                       maxlength="4" 
+                                       readonly 
+                                       value=""
+                                       th:value="${contract.policyholder.passportSeries}">
+                            </label>
+                        </td>
+                        <td class="policyholder">
+                            <label>№<br>
+                                <input class="required" 
+                                       id="pas_number" 
+                                       type="text" 
+                                       maxlength="6" 
+                                       readonly 
+                                       value=""
+                                       th:value="${contract.policyholder.passportNumber}">
+                            </label>
+                        </td>
+                    </tr>
+                </table>
+            </fieldset>
+        </form>
+        <form id="address" idvalue="" th:idvalue="${contract.address.id}">
+            <fieldset>
+                <legend><strong>Адрес недвижимости</strong></legend>
+                <table>
+                    <tr>
+                        <td align="middle">
+                            <input class="required" 
+                                   id="country" 
+                                   type="text" 
+                                   required 
+                                   value=""
+                                   th:value="${contract.address.country}">
+                            <br><span><sup>государство</sup></span>
+                        </td>
+                        <td align="middle">
+                            <input id="index" 
+                                   type="text" 
+                                   value=""
+                                   th:value="${contract.address.index}">
+                            <br><span><sup>индекс</sup></span>
+                        </td>
+                        <td align="middle" 
+                            colspan="2">
+                            <input class="required" 
+                                   id="region" 
+                                   type="text" 
+                                   required 
+                                   value=""
+                                   th:value="${contract.address.region}">
+                            <br><span><sup>республика, край, область</sup></span>
+                        </td>
+                        <td align="middle" 
+                            colspan="2">
+                            <input id="district" 
+                                   type="text" 
+                                   value=""
+                                   th:value="${contract.address.district}">
+                            <br><span><sup>район</sup></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="middle">
+                            <input class="required" 
+                                   id="city" 
+                                   type="text"
+                                   required 
+                                   value=""
+                                   th:value="${contract.address.city}">
+                            <br><span><sup>населенный пункт</sup></span>
+                        </td>
+                        <td align="middle" colspan="3">
+                            <input class="required" 
+                                   id="street" 
+                                   type="text" 
+                                   required 
+                                   value=""
+                                   th:value="${contract.address.street}">
+                            <br><span><sup>улица</sup></span>
+                        </td>
+                        <td align="middle" class="small-input">
+                            <input id="building" 
+                                   type="number" 
+                                   value=""
+                                   th:value="${contract.address.building}">
+                            <br><span><sup>дом</sup></span>
+                        </td>
+                        <td align="middle" class="small-input">
+                            <input id="corpus" 
+                                   type="text" 
+                                   value=""
+                                   th:value="${contract.address.corpus}">
+                            <br><span><sup>корпус</sup></span>
+                        </td>
+                        <td align="middle" class="small-input">
+                            <input id="building_case" 
+                                   type="text" 
+                                   value=""
+                                   th:value="${contract.address.buildingCase}">
+                            <br><span><sup>строение</sup></span>
+                        </td>
+                        <td align="middle" class="small-input">
+                            <input class="required"
+                                   id="apartament"
+                                   type="number" 
+                                   required 
+                                   value=""
+                                   th:value="${contract.address.apartament}">
+                            <br><span><sup>квартира</sup></span>
+                        </td>
+                    </tr>
+                </table>
+            </fieldset>
+            <table>
+                <tr>
+                    <td th:if="${contract.comment}">
+                        <input id="comment" 
+                               type="text" 
+                               class="comment" 
+                               value=""
+                               th:value="${contract.comment}">
+                    </td>
+                    <td th:unless="${contract.comment}">
+                        <input id="comment" 
+                               type="text" 
+                               class="comment" 
+                               value=""
+                               th:value="${contract.comment}">
+                    </td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td><input id="save" type="button" value="Сохранить"></td>
+                    <td><input id="contracts" type="button" value="К списку договоров"></td>
+                </tr>
+            </table>
+        </form>
+    </body>
+    <script>
+        var select = document.getElementById('property').getElementsByTagName('option');
+
+        for (let i = 0; i < select.length; i++) {
+            if (select[i].value === document.getElementById('property').getAttribute('value')) {
+                select[i].selected = true;
+            }
+        }
+
+        select = document.getElementById('year').getElementsByTagName('option');
+
+        for (let i = 0; i < select.length; i++) {
+            if (select[i].value === document.getElementById('year').getAttribute('value')) {
+                select[i].selected = true;
+            }
+        }
+
+        var save = document.getElementById('save');
+        var contracts = document.getElementById('contracts');
+        var calculate = document.getElementById('calculate');
+        var choose = document.getElementById('choose');
+        var change = document.getElementById('change');
+        contracts.onclick = function () {
+            window.location.href = '/view/contracts';
+        };
+
+        save.onclick = function () {
+            let xhr = new XMLHttpRequest();
+            let body = '?country=' + document.getElementById('country').value
+                    + '&region=' + document.getElementById('region').value
+                    + '&city=' + document.getElementById('city').value
+                    + '&apartament=' + document.getElementById('apartament').value
+                    + '&street=' + document.getElementById('street').value
+                    + '&year=' + document.getElementById('year').value;
+            if (document.getElementById('index') !== null) {
+                body += '&index=' + document.getElementById('index').value;
+            }
+            if (document.getElementById('district') !== null) {
+                body += '&district=' + document.getElementById('district').value;
+            }
+            if (document.getElementById('building') !== null) {
+                body += '&building=' + document.getElementById('building').value;
+            }
+            if (document.getElementById('corpus') !== null) {
+                body += '&corpus=' + document.getElementById('corpus').value;
+            }
+            if (document.getElementById('buildingCase') !== null) {
+                body += '&buildingCase=' + document.getElementById('building_case').value;
+            }
+            if (document.getElementById('property') !== null) {
+                body += '&type=' + document.getElementById('property').value;
+            }
+
+            xhr.open('GET', '/address' + body, false);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send();
+            let addressJson = JSON.parse(xhr.responseText);
+
+            let passNum = document.getElementById('pas_number').value;
+            let passSeries = document.getElementById('series').value;
+            xhr.open('GET', '/client/getbypassport?passportNumber=' + passNum
+                    +'&passportSeries='+passSeries, false);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send();
+            let phJson = JSON.parse(xhr.responseText);
+
+            body = '?create=true' +
+                    '&contractNumber=' + document.getElementById('contract_number').value +
+                    '&calculationDate=' + document.getElementById('calculation_date').value +
+                    '&address=' + addressJson.id +
+                    '&policyholder=' + phJson.id +
+                    '&prize=' + document.getElementById('prize').value +
+                    '&area=' + document.getElementById('area').value +
+                    '&sum=' + document.getElementById('sum').value +
+                    '&dateFrom=' + document.getElementById('dateFrom').value +
+                    '&dateTo=' + document.getElementById('dateTo').value;
+            if (document.getElementById('comment') !== null) {
+                body += '&comment=' + document.getElementById('comment').value;
+            }
+            xhr.open('GET', '/contract' + body, false);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send();
+            let contractJson = JSON.parse(xhr.responseText);
+            
+            if (contractJson.id !== undefined){
+                window.location.href = '/view/contract?id=' + contractJson.id;
+            }
+        };
+        function setClient(
+                id,
+                lastName,
+                firstName,
+                middleName,
+                birthday,
+                passportSeries,
+                passportNumber) {
+            let fio = lastName + ' ' + firstName;
+            if (middleName !== 'undefined' && middleName !== null && middleName !== 'null') {
+                fio += ' ' + middleName;
+            }
+            document.getElementById('client').setAttribute('clientid', id);
+            document.getElementById('fio').value = fio;
+            document.getElementById('birthday').value = birthday;
+            if (passportSeries !== 'null' && passportNumber !== 'null') {
+                document.getElementById('series').value = passportSeries;
+                document.getElementById('pas_number').value = passportNumber;
+            } else {
+                document.getElementById('series').value = '';
+                document.getElementById('pas_number').value = '';
+            }
+        }
+
+        calculate.onclick = function () {
+            let xhr = new XMLHttpRequest();
+            let body = '?area=' + document.getElementById('area').value
+                    + '&sum=' + document.getElementById('sum').value
+                    + '&year=' + document.getElementById('year').value
+                    + '&dateFrom=' + document.getElementById('dateFrom').value
+                    + '&dateTo=' + document.getElementById('dateTo').value
+                    + '&type=' + document.getElementById('property').value;
+            xhr.open('GET', '/calc' + body, true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send();
+            xhr.onreadystatechange = function () {
+                let json = JSON.parse(xhr.responseText);
+                document.getElementById('calculation_date').value = json.calculationDate;
+                document.getElementById('prize').value = json.prize;
+            };
+        };
+
+        choose.onclick = function () {
+            window.open('/view/find',
+                    'Поиск клиентов',
+                    'width=850,height=400,location=no,menubar=no,toolbar=no');
+        };
+
+        change.onclick = function () {
+            let clientid = document.getElementById('client').getAttribute('clientid');
+            if (clientid !== null) {
+                window.open('/view/updateClient?id=' + clientid,
+                        'Обновление клиента',
+                        'width=850,height=400,location=no,menubar=no,toolbar=no');
+            }
+        };
+    </script>
+</html>

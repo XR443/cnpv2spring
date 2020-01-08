@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <style>
+        .required {
+            background-color: lightcoral;
+        }
+    </style>
+    <body>
+        <form>
+            <table value="" 
+                   id="id" 
+                   th:value="${client.id}">
+                <tr>
+                    <td align="middle">ФИО</td>
+                    <td align="middle">
+                        <input class="required" 
+                               id="last_name" 
+                               name="last_name" 
+                               type="text" 
+                               required 
+                               value=""
+                               th:value="${client.lastName}">
+                        <br><sup>фамилия</sup>
+                    </td>
+                    <td align="middle">
+                        <input class="required" 
+                               id="first_name" 
+                               name="first_name" 
+                               type="text" 
+                               required 
+                               value=""
+                               th:value="${client.firstName}">
+                        <br><sup>имя</sup>
+                    </td>
+                    <td align="middle">
+                        <input id="middle_name" 
+                               name="middle_name" 
+                               type="text" 
+                               value=""
+                               th:value="${client.middleName}">
+                        <br><sup>отчество</sup>
+                    </td>
+                </tr> 
+                <tr>
+                    <td>
+                        <label>Дата рождения 
+                            <input class="required" 
+                                   id="birthday" 
+                                   name="birthday" 
+                                   type="date" 
+                                   required 
+                                   value=""
+                                   th:value="${client.formatBirthday()}">
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="middle">Паспорт</td>
+                    <td width="200px" colspan="2">
+                        <label>серия 
+                            <input class="required" 
+                                   id="series" 
+                                   name="series" 
+                                   type="number" 
+                                   required 
+                                   value=""
+                                   th:value="${client.passportSeries}">
+                        </label>
+                    </td>
+                    <td width="200px" align="left">
+                        <label>№ 
+                            <input class="required" 
+                                   id="number" 
+                                   name="number" 
+                                   type="number"
+                                   required 
+                                   value=""
+                                   th:value="${client.passportNumber}">
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="right"><input id="save" type="button" value="Сохранить"></td>
+                    <td colspan="2" align="left"><input id="cancel" type="button" value="Отменить"></td>
+                </tr>
+            </table>
+        </form>
+    </body>
+    <script>
+        var save = document.getElementById('save');
+        document.getElementById('cancel').onclick = function () {
+            window.close();
+        };
+        save.onclick = function () {
+            if (document.getElementById('series').value.length === 4 &&
+                    document.getElementById('number').value.length === 6) {
+                let xhr = new XMLHttpRequest();
+                let body = '?id=' + document.getElementById('id').getAttribute('value') +
+                        '&lastName=' + document.getElementById('last_name').value +
+                        '&firstName=' + document.getElementById('first_name').value +
+                        '&birthday=' + document.getElementById('birthday').value +
+                        '&passportSeries=' + document.getElementById('series').value +
+                        '&passportNumber=' + document.getElementById('number').value;
+                let middleName;
+                if (document.getElementById('middle_name') !== null) {
+                    middleName = document.getElementById('middle_name').value;
+                    body += '&middleName=' + middleName;
+                } else {
+                    middleName = null;
+                }
+                xhr.open('GET', '/client/update' + body, false);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.send();
+                window.opener.setClient(
+                        document.getElementById('id').getAttribute('value'),
+                        document.getElementById('last_name').value,
+                        document.getElementById('first_name').value,
+                        middleName,
+                        document.getElementById('birthday').value,
+                        document.getElementById('series').value,
+                        document.getElementById('number').value);
+                window.close();
+            }
+        };
+    </script>
+</html>

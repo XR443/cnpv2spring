@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Новый страхователь</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <style>
+        .required {
+            background-color: lightcoral;
+        }
+    </style>
+    <body>
+        <form>
+            <table>
+                <tr>
+                    <td align="middle">ФИО</td>
+                    <td align="middle"><input class="required" id="last_name" name="last_name" type="text" required><br><sup>фамилия</sup></td>
+                    <td align="middle"><input class="required" id="first_name" name="first_name" type="text" required><br><sup>имя</sup></td>
+                    <td align="middle"><input id="middle_name" name="middle_name" type="text"><br><sup>отчество</sup></td>
+                </tr> 
+                <tr>
+                    <td><label>Дата рождения <input class="required" id="birthday" type="date" required></label></td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="right"><input id="save" type="button" value="Сохранить"></td>
+                    <td colspan="2" align="left"><input id="closeWindow" type="button" value="Отменить"></td>
+                </tr>
+            </table>
+        </form>
+    </body>
+    <script>
+        var save = document.getElementById('save');
+
+        document.getElementById('closeWindow').onclick = function () {
+            window.close();
+        };
+
+        save.onclick = function () {
+            if (document.getElementById('birthday').value !== '' &&
+                    document.getElementById('last_name').value !== '' &&
+                    document.getElementById('first_name').value !== '') {
+                let xhr = new XMLHttpRequest();
+                let body = '?lastName=' + document.getElementById('last_name').value
+                        + '&firstName=' + document.getElementById('first_name').value
+                        + '&birthday=' + document.getElementById('birthday').value;
+                if (document.getElementById('middle_name') !== null) {
+                    body += '&middleName=' + document.getElementById('middle_name').value;
+                }
+                xhr.open('GET', '/client/save' + body, false);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.send();
+                window.close();
+            }
+        };
+    </script>
+</html>

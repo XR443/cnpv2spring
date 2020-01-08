@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<coefficient>
+    <apartament>1.7</apartament>
+    <coefLowArea>1.3</coefLowArea>
+    <coefLowYears>1.3</coefLowYears>
+    <coefMaxArea>2.0</coefMaxArea>
+    <coefMaxYears>2.0</coefMaxYears>
+    <coefMiddleArea>1.6</coefMiddleArea>
+    <coefMiddleYears>1.6</coefMiddleYears>
+    <house>1.5</house>
+    <maxArea>100</maxArea>
+    <maxYear>2015</maxYear>
+    <minArea>50</minArea>
+    <minYear>2000</minYear>
+    <room>1.3</room>
+</coefficient>
+

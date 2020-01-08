@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Страхователь</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <style>
+        .required {
+            background-color: lightcoral;
+        }
+    </style>
+    <body>
+        <form>
+            <table id="clients" onselectstart="return false">
+                <tr>
+                    <td align="middle" valign="top" padding-top="10px">ФИО</td>
+                    <td align="middle">
+                        <input class="required" 
+                               name="last_name" 
+                               id="last_name" 
+                               type="text" 
+                               required>
+                        <br><sup>фамилия</sup>
+                    </td>
+                    <td align="middle">
+                        <input class="required" 
+                               name="first_name" 
+                               id="first_name" 
+                               type="text" 
+                               required>
+                        <br><sup>имя</sup>
+                    </td>
+                    <td align="middle">
+                        <input name="middle_name" 
+                               id="middle_name" 
+                               type="text">
+                        <br><sup>отчество</sup>
+                    </td>
+                    <td align="middle" valign="centre" >
+                        <input type="button" 
+                               id="find" 
+                               value="Искать">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="250px" align="middle">ФИО</td>
+                    <td width="225px" align="middle">Дата рождения</td>
+                    <td width="225pxpx" align="middle">Паспортные данные</td>
+                </tr>
+                <div id="clients"></div>
+            </table>
+            <table>
+                <tr>
+                    <td width="233px" align="right">
+                        <button id="choose">Выбрать</button>
+                    </td>
+                    <td width="10px" align="middle">
+                        <button id="new">Новый</button>
+                    </td>
+                    <td width="233px" align="left">
+                        <button id="closeWindow">Закрыть</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </body>
+    <script>
+        var find = document.getElementById('find');
+        var newClient = document.getElementById('new');
+        var chooseClient = document.getElementById('choose');
+        var focusObj = null;
+        var json1;
+        find.onclick = function () {
+            let xhr = new XMLHttpRequest();
+            let body = '?lastName=' + document.getElementById('last_name').value
+                    + '&firstName=' + document.getElementById('first_name').value;
+            if (document.getElementById('middle_name') !== null) {
+                body += '&middleName=' + document.getElementById('middle_name').value;
+            }
+            xhr.open('GET', '/client/get' + body, false);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send();
+            let json = JSON.parse(xhr.responseText);
+            json1 = json;
+            let clientsTable = document.getElementsByTagName('tbody')[0];
+            for(let i = 2; i<clientsTable.getElementsByTagName('tr').length;i++){
+                clientsTable.getElementsByTagName('tr')[i].remove();
+            }
+            if (json.length !== 0) {
+                let tr = document.createElement('tr');
+                let html = '';
+                for (let i = 0; i < json.length; i++) {
+                    html += '<tr clientid="' + json[i].id + '">';
+                    html += '<td>' +
+                            json[i].lastName +
+                            ' ' +
+                            json[i].firstName + ' ';
+                    if (json[i].middleName !== undefined && 
+                            json[i].middleName!==null) {
+                        html += json[i].middleName + '</td>';
+                    }
+                    html += '<td>' +
+                            json[i].birthday + '</td>';
+                    if (json[i].passportNumber !== null && json[i].passportSeries !== null) {
+                        html += '<td>' +
+                                json[i].passportNumber + ' ' + json[i].passportSeries + '</td>';
+                    } else {
+                        html += '<td>' + '</td>';
+                    }
+                    html += '</tr>';
+                }
+                tr.innerHTML = html;
+                clientsTable.append(tr);
+                for (let i = 2; i < clientsTable.getElementsByTagName('tr').length; i++) {
+                    let row = clientsTable.getElementsByTagName('tr')[i];
+                    
+                    row.setAttribute('deleted','true');
+                    row.setAttribute('tabindex', '-1');
+                    row.setAttribute('id', json[i - 2].id);
+                    row.setAttribute('last_name', json[i - 2].lastName);
+                    row.setAttribute('first_name', json[i - 2].firstName);
+                    row.setAttribute('middle_name', json[i - 2].middleName);
+                    row.setAttribute('birthday', json[i - 2].birthday);
+                    row.setAttribute('passport_series', json[i - 2].passportSeries);
+                    row.setAttribute('passport_number', json[i - 2].passportNumber);
+
+                    row.onfocus = function () {
+                        focusObj = this;
+                    };
+
+                    for (let j = 0; j < row.getElementsByTagName('td').length; j++) {
+                        row.getElementsByTagName('td')[j].setAttribute('align', 'middle');
+                    }
+                }
+            }
+        };
+
+        chooseClient.onclick = function () {
+            if (focusObj !== null) {
+                window.opener.setClient(
+                        focusObj.getAttribute('id'),
+                        focusObj.getAttribute('last_name'),
+                        focusObj.getAttribute('first_name'),
+                        focusObj.getAttribute('middle_name'),
+                        focusObj.getAttribute('birthday'),
+                        focusObj.getAttribute('passport_series'),
+                        focusObj.getAttribute('passport_number'), );
+                window.close();
+            }
+        };
+
+        newClient.onclick = function () {
+            window.open('/view/newClient',
+                    'Новый клиент',
+                    'width=850,height=400,location=no,menubar=no,toolbar=no');
+        };
+
+        document.getElementById('closeWindow').onclick = function () {
+            window.close();
+        };
+    </script>
+</html>

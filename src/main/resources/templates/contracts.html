@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Список договоров</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <style>
+        td {
+            text-align: center;
+        }
+    </style>
+    <body>
+        <button value="-1" id="create">Созадать договор</button>
+        <button id="open">Открыть договор</button>
+        <table onselectstart="return false">
+            <tr>
+                <td>Серия-Номер</td>
+                <td>Дата заключения</td>
+                <td>Страхователь</td>
+                <td>Премия</td>
+                <td>Срок действия</td>
+            </tr>
+            <tr value="" th:each = "contract : ${contracts}" tabindex="-1" th:attr="value=${contract.id}">
+                <td th:utext = "${contract.contractNumber}"></td>
+                <td th:utext = "${contract.formatFConclusionDate()}"></td>
+                <td th:utext = "${contract.policyholder.fio()}"></td>
+                <td th:utext = "${contract.prize}"></td>
+                <td th:utext = "${contract.formatFFromTo()}"></td>
+            </tr>
+        </table>
+        <script>
+            var rows = document.getElementsByTagName('tr');
+            var create = document.getElementById('create');
+            var open = document.getElementById('open');
+            var focusObj = null;
+            for (let i = 1; i < rows.length; i++) {
+                rows[i].addEventListener('dblclick', function () {
+                    link(rows[i]);
+                });
+                rows[i].onfocus = function () {
+                    focusObj = this;
+                    //this.style.backgroundColor = '#87ceeb';
+                };
+            }
+
+            open.onclick = function () {
+                if (focusObj !== null) {
+                    link(focusObj);
+                }
+            };
+            
+            create.onclick = function () {
+                link(null);
+            };
+
+            function link(object) {
+                if (object === null) {
+                    window.location.href = '/view/contract';
+                } else {
+                    window.location.href = '/view/contract?id=' + object.getAttribute('value');
+                }
+            }
+        </script>
+    </body>
+</html>
